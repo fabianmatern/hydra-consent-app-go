@@ -65,7 +65,7 @@ func main() {
 // page a user sees.
 func handleHome(w http.ResponseWriter, _ *http.Request) {
 	var config = client.GetOAuth2Config()
-	config.RedirectURL = "http://localhost:4445/callback"
+	config.RedirectURL = env.Getenv("HYDRA_REDIRECT_URL", "http://localhost:4445/callback")
 	config.Scopes = []string{"offline", "openid"}
 
 	var authURL = client.GetOAuth2Config().AuthCodeURL(state) + "&nonce=" + state
