@@ -14,3 +14,5 @@ _book/
 dist/
 coverage.*
 /hydra-consent-app-go
+*.crt
+*.key
