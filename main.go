@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/urfave/negroni"
 	"golang.org/x/oauth2"
+	"fmt"
 )
 
 // This store will be used to save user authentication
@@ -56,9 +57,25 @@ func main() {
 	n.Use(negronilogrus.NewMiddleware())
 	n.UseHandler(r)
 
+	// Start https server
+	go func() {
+		tlsPort := env.Getenv("TLS_PORT", "3443")
+		certFile := env.Getenv("CONSENT_CERT_FILE", "server.crt")
+		keyFile := env.Getenv("CONSENT_KEY_FILE", "server.key")
+		log.Println(fmt.Sprintf("Listening on :%s", tlsPort))
+		if err := http.ListenAndServeTLS(fmt.Sprintf(":%s", tlsPort), certFile, keyFile, n); err != nil {
+			log.Println(err)
+			log.Println(fmt.Sprintf("Port :%s stopped!", tlsPort))
+		}
+	}()
+
 	// Start http server
-	log.Println("Listening on :" + env.Getenv("PORT", "3000"))
-	http.ListenAndServe(":"+env.Getenv("PORT", "3000"), n)
+	port := env.Getenv("PORT", "3000")
+	log.Println(fmt.Sprintf("Listening on :%s", port))
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), n); err != nil {
+		log.Fatal(err)
+		log.Println(fmt.Sprintf("Port :%s stopped!", port))
+	}
 }
 
 // handles request at /home - a small page that let's you know what you can do in this app. Usually the first.
@@ -243,4 +260,17 @@ func renderTemplate(w http.ResponseWriter, id string, d interface{}) bool {
 		return false
 	}
 	return true
+}
+
+func RedirectToHTTPSRouter(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
+		proto := req.Header.Get("x-forwarded-proto")
+		if proto == "http" || proto == "HTTP" {
+			http.Redirect(res, req, fmt.Sprintf("https://%s%s", req.Host, req.URL), http.StatusPermanentRedirect)
+			return
+		}
+
+		next.ServeHTTP(res, req)
+
+	})
 }
