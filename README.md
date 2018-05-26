@@ -20,6 +20,18 @@ export CONSENT_URL=http://localhost:3000/consent
 hydra host --dangerous-force-http
 ```
 
+Generate private key (.key)
+
+```
+openssl ecparam -genkey -name secp384r1 -out server.key
+```
+
+Generation of self-signed(x509) public key (PEM-encodings .pem|.crt) based on the private (.key)
+
+```
+openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
+```
+
 In another console, run
 
 ```
@@ -36,6 +48,12 @@ Then, open the browser:
 
 ```
 open http://localhost:3000/
+```
+
+For https connection:
+
+```
+open https://localhost:3443/
 ```
 
 Now follow the steps described in the browser. If you encounter an error,
