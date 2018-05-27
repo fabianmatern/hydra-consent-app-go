@@ -73,8 +73,8 @@ func main() {
 	port := env.Getenv("PORT", "3000")
 	log.Println(fmt.Sprintf("Listening on :%s", port))
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), n); err != nil {
-		log.Fatal(err)
 		log.Println(fmt.Sprintf("Port :%s stopped!", port))
+		log.Fatal(err)
 	}
 }
 
