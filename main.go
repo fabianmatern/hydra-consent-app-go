@@ -147,7 +147,6 @@ func handleConsent(w http.ResponseWriter, r *http.Request) {
 			AccessTokenExtra: map[string]interface{}{"foo": "bar"},
 
 			// If we issue an ID token, we can set extra data for that id token here.
-			IdTokenExtra: map[string]interface{}{"foo": "baz"},
 			IdTokenExtra: map[string]interface{}{"authorization": map[string]interface{}{"assignedVerticals": []string{"myVertical", "testVertical"}, "isSuperUser": false}},
 		})
 		if err != nil {
